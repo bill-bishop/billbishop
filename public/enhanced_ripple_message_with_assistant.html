@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Ripple Message</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: black;
+        }
+        canvas {
+            display: block;
+        }
+        .message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: Arial, sans-serif;
+            color: white;
+            font-size: 24px;
+            text-align: center;
+            opacity: 0;
+            animation: fadeInOut 3s ease-in-out forwards;
+        }
+        .message#assistant {
+            animation-delay: 1s;
+        }
+        .message#love {
+            animation-delay: 4s;
+        }
+        .message#touch {
+            animation-delay: 7s;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            25% { opacity: 1; }
+            75% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="rippleCanvas"></canvas>
+    <div class="message" id="assistant">Hey Will! This is a special message, just for you.</div>
+    <div class="message" id="love">I love you</div>
+    <div class="message" id="touch">Touch me 😏</div>
+
+    <script>
+        const canvas = document.getElementById('rippleCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const ripples = [];
+        let interactiveMode = false;
+
+        // Pre-programmed ripple message
+        const messageRipples = [
+            { x: canvas.width * 0.3, y: canvas.height * 0.5, color: "cyan", delay: 0 },
+            { x: canvas.width * 0.5, y: canvas.height * 0.5, color: "magenta", delay: 500 },
+            { x: canvas.width * 0.7, y: canvas.height * 0.5, color: "yellow", delay: 1000 }
+        ];
+
+        function preProgrammedMessage() {
+            messageRipples.forEach((ripple, index) => {
+                setTimeout(() => {
+                    ripples.push({ x: ripple.x, y: ripple.y, radius: 0, opacity: 1, color: ripple.color });
+                    if (index === messageRipples.length - 1) enableInteractiveMode();
+                }, ripple.delay);
+            });
+        }
+
+        // Enable interactive mode after the messages
+        function enableInteractiveMode() {
+            setTimeout(() => {
+                interactiveMode = true;
+            }, 9000); // After messages fade out
+        }
+
+        // Handle touch events for interactivity
+        canvas.addEventListener('touchstart', (event) => {
+            if (!interactiveMode) return;
+            event.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const touch = event.touches[0];
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            ripples.push({ x, y, radius: 0, opacity: 1, color: "white" });
+        });
+
+        // Animate the ripples
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < ripples.length; i++) {
+                const ripple = ripples[i];
+                ctx.beginPath();
+                ctx.arc(ripple.x, ripple.y, ripple.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(${ripple.color === "cyan" ? "0, 255, 255" :
+                                       ripple.color === "magenta" ? "255, 0, 255" :
+                                       ripple.color === "yellow" ? "255, 255, 0" : "255, 255, 255"}, ${ripple.opacity})`;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ripple.radius += 2;
+                ripple.opacity -= 0.01;
+
+                // Remove faded ripples
+                if (ripple.opacity <= 0) {
+                    ripples.splice(i, 1);
+                    i--;
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        // Start pre-programmed message
+        preProgrammedMessage();
+        animate();
+
+        // Adjust canvas size on window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
