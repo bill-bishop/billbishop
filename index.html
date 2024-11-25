@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Bio Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <script type="module">
+        import { GameModel } from './model.js';
+        import { GameView } from './view.js';
+        import { GameController } from './controller.js';
+
+        // Initialize MVC
+        const model = new GameModel();
+        const view = new GameView('gameCanvas');
+        const controller = new GameController(model, view);
+        controller.gameLoop();
+    </script>
+</body>
+</html>
