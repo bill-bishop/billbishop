@@ -58,6 +58,34 @@ export class GameView {
                 this.ctx.arc(obj.x, obj.y, obj.size, 0, Math.PI * 2);
                 this.ctx.fill();
                 break;
+            case 'heart':
+                this.ctx.fillStyle = 'pink';
+                this.ctx.beginPath();
+                const topCurveHeight = obj.size * 0.3;
+                this.ctx.moveTo(obj.x, obj.y + topCurveHeight);
+                this.ctx.bezierCurveTo(
+                    obj.x, obj.y,
+                    obj.x - obj.size / 2, obj.y,
+                    obj.x - obj.size / 2, obj.y + topCurveHeight
+                );
+                this.ctx.bezierCurveTo(
+                    obj.x - obj.size / 2, obj.y + (obj.size + topCurveHeight) / 2,
+                    obj.x, obj.y + (obj.size + topCurveHeight) / 1.5,
+                    obj.x, obj.y + obj.size
+                );
+                this.ctx.bezierCurveTo(
+                    obj.x, obj.y + (obj.size + topCurveHeight) / 1.5,
+                    obj.x + obj.size / 2, obj.y + (obj.size + topCurveHeight) / 2,
+                    obj.x + obj.size / 2, obj.y + topCurveHeight
+                );
+                this.ctx.bezierCurveTo(
+                    obj.x + obj.size / 2, obj.y,
+                    obj.x, obj.y,
+                    obj.x, obj.y + topCurveHeight
+                );
+                this.ctx.closePath();
+                this.ctx.fill();
+                break;
             default:
                 this.ctx.fillRect(obj.x, obj.y, obj.size, obj.size);
                 break;

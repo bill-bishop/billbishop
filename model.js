@@ -39,8 +39,9 @@ export class GameModel {
         this.objects = [
             new GameObject(250, 200, 50, 'Bio', 'circle', 0, new Interaction('navigate', { url: 'bio.html' })),
             new GameObject(450, 300, 50, 'GitHub', 'triangle', 0, new Interaction('navigate', { url: 'https://github.com/bill-bishop' })),
-            new GameObject(650, 400, 50, 'Mystery', 'hexagon', 3, new Interaction('win', { message: 'You have won the game!' })),
-            new GameObject(350, 250, 10, 'PowerUp', 'dot', 0, new Interaction('powerup', { type: 'speedBoost', duration: 5000, value: 4 }), true, true) // Power-up GameObject
+            new GameObject(650, 400, 50, 'Mystery', 'hexagon', 2, new Interaction('win', { message: 'You have won the game!' })),
+            new GameObject(350, 250, 10, 'PowerUp', 'dot', 0, new Interaction('powerup', { type: 'speedBoost', duration: 5000, value: 4 }), true, true), // Power-up GameObject
+            new GameObject(500, 550, 30, 'Heart', 'heart', 0, new Interaction('navigate', { url: 'enhanced_ripple_message_with_assistant.html' })) // Heart GameObject
         ];
         this.colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
     }
