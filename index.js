@@ -1,9 +1,10 @@
 // index.js
-import httpServer from 'http-server';
 
-const server = httpServer.createServer({ root: './' });
+const http = require('http-server');
+const port = process.env.PORT || 8080;
 
-const port = 8080;
+const server = http.createServer({ root: '.' });
+
 server.listen(port, () => {
-    console.log(`Server is listening on http://localhost:${port}`);
+    console.log(`Server is running on port ${port}`);
 });
