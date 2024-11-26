@@ -3,15 +3,25 @@
 export class GameView {
     constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
-        //this.canvas.width  = innerWidth;
-        //this.canvas.style.width = innerWidth;
-        //this.canvas.height = innerWidth;
-        //this.canvas.style.height = innerHeight;
         this.ctx = this.canvas.getContext('2d');
-        this.ctx.font = '12px Arial';
-        //this.ctx.scale(2, 2);
         this.backgroundImage = new Image();
         this.backgroundImage.src = './img/bg1.jpg';
+
+        // Set the base canvas dimensions (logical size)
+        this.logicalWidth = 800;
+        this.logicalHeight = 800;
+        this.canvas.width = this.logicalWidth;
+        this.canvas.height = this.logicalHeight;
+
+        // Adjust the canvas scaling to match the screen size
+        window.addEventListener('resize', () => this.resizeCanvas());
+        this.resizeCanvas();
+    }
+
+    resizeCanvas() {
+        const scale = Math.min(window.innerWidth / this.logicalWidth, window.innerHeight / this.logicalHeight);
+        this.canvas.style.width = `${this.logicalWidth * scale}px`;
+        this.canvas.style.height = `${this.logicalHeight * scale}px`;
     }
 
     clear() {
@@ -127,11 +137,11 @@ export class GameView {
         const appendOutput = output => {
             output.split('\n').forEach(outputLine => {
                 lineCount += 1;
-                this.ctx.fillText(outputLine, debugX, debugY*lineCount);
+                this.ctx.fillText(outputLine, debugX, debugY * lineCount);
             });
         };
         appendOutput(`Player: ${JSON.stringify(model.player, null, 2)}`);
-        appendOutput(`InputHandler: ${JSON.stringify(controller.inputHandler, null, 2)}`)
+        appendOutput(`InputHandler: ${JSON.stringify(controller.inputHandler, null, 2)}`);
     }
 
     drawWinScreen() {
