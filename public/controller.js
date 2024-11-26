@@ -6,7 +6,7 @@ export class GameController {
     constructor(model, view) {
         this.model = model;
         this.view = view;
-        this.inputHandler = new InputHandler();
+        this.inputHandler = new InputHandler(this.view.canvas);
         this.collisionDetected = false;
         this.collisionLabel = '';
         this.collisionObject = null;
