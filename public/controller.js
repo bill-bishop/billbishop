@@ -16,10 +16,10 @@ export class GameController {
         updatePlayerPosition(this.model, this.inputHandler.keys, this.view);
         updatePlayerMovementTowardsTarget(this.model, this.inputHandler.mouseHeld, this.inputHandler.targetX, this.inputHandler.targetY);
         updateMysteryObject(this.model);
-        updatePlayerColor(this.model);
+        // updatePlayerColor(this.model);
         updateOrbitingDot(this.model);
-        wrapObjectsAroundScreen(this.model, this.view);
-        checkCanvasBoundaries(this.model, this.view);
+        // wrapObjectsAroundScreen(this.model, this.view);
+        // checkCanvasBoundaries(this.model, this.view);
     }
 
     draw() {
@@ -32,7 +32,7 @@ export class GameController {
             return;
         }
 
-        // Draw player with rainbow colors
+        // Draw player with their color
         this.view.drawPlayer(player, colors[player.colorIndex]);
 
         // Draw orbiting dot if the player has the power-up
@@ -47,6 +47,9 @@ export class GameController {
         if (this.collisionDetected && this.collisionObject && !this.collisionObject.autoInteract) {
             this.view.drawCollisionDialogue();
         }
+
+        // Draw debug dialogue
+        this.view.drawDebugDialogue(this.model, this.view, this);
     }
 
     checkCollision() {

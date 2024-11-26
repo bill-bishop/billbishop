@@ -100,6 +100,23 @@ export class GameView {
         this.ctx.fillText('Press "X" or Tap Screen', this.canvas.width / 2 - 120, this.canvas.height / 2);
     }
 
+    drawDebugDialogue(model, view, controller) {
+        this.ctx.fillStyle = 'cyan';
+        this.ctx.font = '8px Courier';
+
+        const debugX = 0;
+        const debugY = 10;
+        let lineCount = 0;
+        const appendOutput = output => {
+            output.split('\n').forEach(outputLine => {
+                lineCount += 1;
+                this.ctx.fillText(outputLine, debugX, debugY*lineCount);
+            });
+        };
+        appendOutput(`Player: ${JSON.stringify(model.player, null, 2)}`);
+        appendOutput(`InputHandler: ${JSON.stringify(controller.inputHandler, null, 2)}`)
+    }
+
     drawWinScreen() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
