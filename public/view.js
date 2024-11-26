@@ -4,11 +4,23 @@ export class GameView {
     constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas.getContext('2d');
-        this.ctx.font = '20px Arial';
+        this.ctx.font = '25px Arial';
+        this.backgroundImage = new Image();
+        this.backgroundImage.src = './img/bg1.jpg';
     }
 
     clear() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+
+    drawBackground() {
+        if (this.backgroundImage.complete) {
+            this.ctx.drawImage(this.backgroundImage, 0, 0, this.canvas.width, this.canvas.height);
+        } else {
+            this.backgroundImage.onload = () => {
+                this.ctx.drawImage(this.backgroundImage, 0, 0, this.canvas.width, this.canvas.height);
+            };
+        }
     }
 
     drawPlayer(player, color) {
@@ -96,7 +108,7 @@ export class GameView {
 
     drawCollisionDialogue() {
         this.ctx.fillStyle = 'yellow';
-        this.ctx.font = '20px Arial';
+        this.ctx.font = '25px Arial';
         this.ctx.fillText('Press "X" or Tap Screen', this.canvas.width / 2 - 120, this.canvas.height / 2);
     }
 

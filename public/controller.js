@@ -32,6 +32,9 @@ export class GameController {
             return;
         }
 
+        // Draw bg
+        this.view.drawBackground();
+
         // Draw player with their color
         this.view.drawPlayer(player, colors[player.colorIndex]);
 
@@ -49,7 +52,7 @@ export class GameController {
         }
 
         // Draw debug dialogue
-        this.view.drawDebugDialogue(this.model, this.view, this);
+        // this.view.drawDebugDialogue(this.model, this.view, this);
     }
 
     checkCollision() {
