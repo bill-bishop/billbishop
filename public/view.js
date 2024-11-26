@@ -4,7 +4,7 @@ export class GameView {
     constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas.getContext('2d');
-        this.ctx.font = '25px Arial';
+        this.ctx.font = '12px Arial';
         this.backgroundImage = new Image();
         this.backgroundImage.src = './img/bg1.jpg';
     }
@@ -108,7 +108,7 @@ export class GameView {
 
     drawCollisionDialogue() {
         this.ctx.fillStyle = 'yellow';
-        this.ctx.font = '25px Arial';
+        this.ctx.font = '12px Arial';
         this.ctx.fillText('Press "X" or Tap Screen', this.canvas.width / 2 - 120, this.canvas.height / 2);
     }
 
