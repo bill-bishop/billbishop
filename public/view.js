@@ -3,8 +3,13 @@
 export class GameView {
     constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
+        //this.canvas.width  = innerWidth;
+        //this.canvas.style.width = innerWidth;
+        //this.canvas.height = innerWidth;
+        //this.canvas.style.height = innerHeight;
         this.ctx = this.canvas.getContext('2d');
         this.ctx.font = '12px Arial';
+        //this.ctx.scale(2, 2);
         this.backgroundImage = new Image();
         this.backgroundImage.src = './img/bg1.jpg';
     }
