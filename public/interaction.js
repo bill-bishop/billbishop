@@ -12,7 +12,9 @@ export class Interaction {
                 window.location.href = this.data.url;
                 break;
             case 'win':
-                model.state = 'PlayerWin';
+                if (player.powerUps.includes('loveBoost') && player.powerUps.includes('speedBoost')) {
+                    model.state = 'PlayerWin';
+                }
                 break;
             case 'powerup':
                 this.applyPowerUp(player);

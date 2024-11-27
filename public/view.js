@@ -210,7 +210,7 @@ export class GameView {
         this.colors = new GameColors();
 
         // add fireworks module
-        this.fireworks = new Fireworks(this.canvas, 'You Win!', 'white', '50px Arial');
+        this.fireworks = new Fireworks(this.canvas, 'Now You REALLY Win!!!!', 'white', '50px Arial');
         
         // this.particles = new ParticleExplosion(this.canvas);
     }
