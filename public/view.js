@@ -16,7 +16,7 @@ export class GameColors {
             'Player': 'white',
             'Bio': 'rgba(0, 0, 0, 0)', // DarkGreen
             'GitHub': 'rgba(0, 0, 0, 0)', // DarkBlue
-            'Mystery': 'rgba(0, 0, 0, 0)', // Indigo
+            'Mystery': '', // Indigo
             'PowerUp': '', // rainbow
             'Heart': '#8B0000' // DarkRed
         };
