@@ -13,13 +13,14 @@
     <script type="module">
         import { GameModel } from './model.js';
         import { GameView } from './view.js';
-        import { GameController } from './controller.js';
+        import { InputHandler } from './input_handler.js';
+        import { gameLoop } from './controller.js';
 
         const model = new GameModel();
         const view = new GameView('gameCanvas');
-        const controller = new GameController(model, view);
+        const inputHandler = new InputHandler(view.canvas);
 
-        controller.gameLoop();
+        gameLoop(model, view, inputHandler);
     </script>
 </body>
 </html>

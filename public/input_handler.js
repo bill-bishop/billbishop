@@ -1,73 +1,87 @@
 // input_handler.js
-
 export class InputHandler {
     constructor(canvas) {
-        this.keys = {};
-        this.mouseHeld = false;
-        this.targetX = 0;
-        this.targetY = 0;
-        this.canvas = canvas;
-        this.initEventListeners();
+        this._keys = {};
+        this._mouseHeld = false;
+        this._targetX = 0;
+        this._targetY = 0;
+        this._canvas = canvas;
+        this._initEventListeners();
     }
 
-    initEventListeners() {
+    _initEventListeners() {
         // Key listeners
-        window.addEventListener('keydown', (e) => this.keys[e.key] = true);
-        window.addEventListener('keyup', (e) => this.keys[e.key] = false);
+        window.addEventListener('keydown', (e) => this._keys[e.key] = true);
+        window.addEventListener('keyup', (e) => this._keys[e.key] = false);
 
         // Mouse listeners
-        window.addEventListener('mousedown', (e) => {
-            this.mouseHeld = true;
-            this.setTargetPosition(e.offsetX, e.offsetY);
+        this._canvas.addEventListener('mousedown', (e) => {
+            this._mouseHeld = true;
+            this._setTargetPosition(e.offsetX, e.offsetY);
         });
 
-        window.addEventListener('mouseup', () => {
-            this.mouseHeld = false;
+        this._canvas.addEventListener('mouseup', () => {
+            this._mouseHeld = false;
         });
 
-        window.addEventListener('mousemove', (e) => {
-            if (this.mouseHeld) {
-                this.setTargetPosition(e.offsetX, e.offsetY);
+        this._canvas.addEventListener('mousemove', (e) => {
+            if (this._mouseHeld) {
+                this._setTargetPosition(e.offsetX, e.offsetY);
             }
         });
 
         // Touch listeners
-        window.addEventListener('touchstart', (e) => {
-            this.mouseHeld = true;
+        this._canvas.addEventListener('touchstart', (e) => {
+            this._mouseHeld = true;
             const touch = e.touches[0];
-            this.setTouchPosition(touch);
+            this._setTouchPosition(touch);
         });
 
-        window.addEventListener('touchend', () => {
-            this.mouseHeld = false;
+        this._canvas.addEventListener('touchend', () => {
+            this._mouseHeld = false;
         });
 
-        window.addEventListener('touchmove', (e) => {
-            if (this.mouseHeld) {
+        this._canvas.addEventListener('touchmove', (e) => {
+            if (this._mouseHeld) {
                 const touch = e.touches[0];
-                this.setTouchPosition(touch);
+                this._setTouchPosition(touch);
             }
         });
     }
 
-    setTargetPosition(x, y) {
-        // Get the scale of the canvas based on its logical dimensions and rendered size
-        const rect = this.canvas.getBoundingClientRect();
-        const scaleX = this.canvas.width / rect.width;
-        const scaleY = this.canvas.height / rect.height;
+    _setTargetPosition(x, y) {
+        const rect = this._canvas.getBoundingClientRect();
+        const scaleX = this._canvas.width / rect.width;
+        const scaleY = this._canvas.height / rect.height;
 
-        // Adjust target coordinates based on scaling
-        this.targetX = x * scaleX;
-        this.targetY = y * scaleY;
+        this._targetX = x * scaleX;
+        this._targetY = y * scaleY;
     }
 
-    setTouchPosition(touch) {
-        const rect = this.canvas.getBoundingClientRect();
-        const scaleX = this.canvas.width / rect.width;
-        const scaleY = this.canvas.height / rect.height;
+    _setTouchPosition(touch) {
+        const rect = this._canvas.getBoundingClientRect();
+        const scaleX = this._canvas.width / rect.width;
+        const scaleY = this._canvas.height / rect.height;
 
-        // Adjust target coordinates based on scaling
-        this.targetX = (touch.clientX - rect.left) * scaleX;
-        this.targetY = (touch.clientY - rect.top) * scaleY;
+        this._targetX = (touch.clientX - rect.left) * scaleX;
+        this._targetY = (touch.clientY - rect.top) * scaleY;
+    }
+
+    get keys() {
+        return { ...this._keys }; // Return a copy to prevent modification
+    }
+
+    get mouseHeld() {
+        return this._mouseHeld;
+    }
+
+    get targetX() {
+        return this._targetX;
+    }
+
+    get targetY() {
+        return this._targetY;
     }
 }
+
+// The InputHandler is designed to prevent direct modification of its internal state from outside the class, ensuring a read-only interface.
