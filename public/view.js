@@ -14,9 +14,9 @@ export class GameColors {
         // Cute color mapping for GameObject labels
         this.labelColors = {
             'Player': 'white',
-            'Bio': '#006400', // DarkGreen
-            'GitHub': '#00008B', // DarkBlue
-            'Mystery': '#4B0082', // Indigo
+            'Bio': 'rgba(0, 0, 0, 0)', // DarkGreen
+            'GitHub': 'rgba(0, 0, 0, 0)', // DarkBlue
+            'Mystery': 'rgba(0, 0, 0, 0)', // Indigo
             'PowerUp': '', // rainbow
             'Heart': '#8B0000' // DarkRed
         };
@@ -41,7 +41,7 @@ export class GameView {
         this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas.getContext('2d');
         this.backgroundImage = new Image();
-        this.backgroundImage.src = './img/bg1.jpg';
+        this.backgroundImage.src = './img/bg2.jpg';
 
         // Set the base canvas dimensions (logical size)
         this.logicalWidth = 1024;
@@ -85,7 +85,7 @@ export class GameView {
     drawOrbitingDot(player) {
         const orbitX = player.x + player.size / 2 + 40 * Math.cos(player.orbitAngle);
         const orbitY = player.y + player.size / 2 + 40 * Math.sin(player.orbitAngle);
-        this.ctx.fillStyle = 'white';
+        this.ctx.fillStyle = this.colors.getRainbowColor();
         this.ctx.beginPath();
         this.ctx.arc(orbitX, orbitY, 5, 0, Math.PI * 2);
         this.ctx.fill();
