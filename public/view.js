@@ -1,5 +1,41 @@
 // view.js
 
+export class GameColors {
+    constructor() {
+        // Rainbow color cycle counter
+        this.rainbowCycle = 0;
+        this.rainbowIndex = 0;
+        this.rainbowFrameInterval = 10;
+
+        this.colors = [
+            'red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'
+        ];
+
+        // Cute color mapping for GameObject labels
+        this.labelColors = {
+            'Player': 'white',
+            'Bio': '#006400', // DarkGreen
+            'GitHub': '#00008B', // DarkBlue
+            'Mystery': '#4B0082', // Indigo
+            'PowerUp': '', // rainbow
+            'Heart': '#8B0000' // DarkRed
+        };
+    }
+
+    getRainbowColor() {
+        this.rainbowCycle++;
+        if (this.rainbowCycle % this.rainbowFrameInterval === 0) {
+            this.rainbowIndex++;
+        }
+        return this.colors[this.rainbowIndex % this.colors.length];
+    }
+
+    getLabelColor(label) {
+        return this.labelColors[label] || this.getRainbowColor();
+    }
+}
+
+
 export class GameView {
     constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
@@ -8,14 +44,17 @@ export class GameView {
         this.backgroundImage.src = './img/bg1.jpg';
 
         // Set the base canvas dimensions (logical size)
-        this.logicalWidth = 800;
-        this.logicalHeight = 800;
+        this.logicalWidth = 1024;
+        this.logicalHeight = 1024;
         this.canvas.width = this.logicalWidth;
         this.canvas.height = this.logicalHeight;
 
         // Adjust the canvas scaling to match the screen size
         window.addEventListener('resize', () => this.resizeCanvas());
         this.resizeCanvas();
+
+        // add Colors module
+        this.colors = new GameColors();
     }
 
     resizeCanvas() {
@@ -53,7 +92,7 @@ export class GameView {
     }
 
     drawObject(obj) {
-        this.ctx.fillStyle = obj.label === 'PowerUp' ? 'white' : 'red';
+        this.ctx.fillStyle = this.colors.getLabelColor(obj.label);
         switch (obj.shape) {
             case 'circle':
                 this.ctx.beginPath();
@@ -117,13 +156,14 @@ export class GameView {
                 this.ctx.fillRect(obj.x, obj.y, obj.size, obj.size);
                 break;
         }
-        this.ctx.fillStyle = 'white';
-        this.ctx.fillText(obj.label, obj.x + 10, obj.y + obj.size + 15);
+        // this.ctx.fillStyle = 'Red';
+        // this.ctx.font = '22px Courier';
+        // this.ctx.fillText(obj.label, obj.x + 10, obj.y + obj.size + 15);
     }
 
     drawCollisionDialogue() {
         this.ctx.fillStyle = 'yellow';
-        this.ctx.font = '12px Arial';
+        this.ctx.font = '22px Arial';
         this.ctx.fillText('Press "X" or Tap Screen', this.canvas.width / 2 - 120, this.canvas.height / 2);
     }
 

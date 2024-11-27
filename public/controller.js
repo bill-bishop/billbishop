@@ -36,7 +36,7 @@ export class GameController {
         this.view.drawBackground();
 
         // Draw player with their color
-        this.view.drawPlayer(player, colors[player.colorIndex]);
+        this.view.drawPlayer(player, this.view.colors.getLabelColor('Player'));
 
         // Draw orbiting dot if the player has the power-up
         if (player.powerUps.includes('speedBoost')) {
