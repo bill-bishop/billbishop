@@ -37,7 +37,7 @@ export class GameModel {
     constructor() {
         this.player = new Player();
         this.objects = [
-            new GameObject(203, 933, 9, 'GitHub', 'dot', 0, new Interaction('navigate', { url: 'https://github.com/bill-bishop' })),
+            new GameObject(203, 933, 9, 'GitHub', 'dot', 0, new Interaction('navigate', { url: 'https://github.com/bill-bishop/billbishop' })),
             new GameObject(509, 968, 9, 'Bio', 'dot', 0, new Interaction('navigate', { url: '/bio.html' })),
             new GameObject(791, 939, 9, 'Mystery', 'dot', 2, new Interaction('win', { message: 'You have won the game!' })),
             new GameObject(482, 791, 6, 'PowerUp', 'dot', 0, new Interaction('powerup', { type: 'speedBoost', duration: 5000, value: 4 }), true, true), // Power-up GameObject
