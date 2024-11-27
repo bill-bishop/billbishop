@@ -35,6 +35,159 @@ export class GameColors {
     }
 }
 
+export class Fireworks {
+    constructor(canvas, message, color, fontStyle) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.fireworks = [];
+        this.gravity = 0.02; // Reduce gravity for slower effect
+        this.sparkLife = 100; // Increase spark life for longer duration
+
+        this.message = message;
+        this.color = color;
+        this.fontStyle = fontStyle;
+    }
+
+    createFirework(x, y) {
+        const colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
+        const sparks = [];
+        for (let i = 0; i < 100; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = Math.random() * 3 + 1; // Reduce speed for slower movement
+            sparks.push({
+                x: x,
+                y: y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                life: this.sparkLife
+            });
+        }
+        this.fireworks.push(sparks);
+    }
+
+    update() {
+        for (let i = this.fireworks.length - 1; i >= 0; i--) {
+            const sparks = this.fireworks[i];
+            for (let j = sparks.length - 1; j >= 0; j--) {
+                const spark = sparks[j];
+                spark.vy += this.gravity;
+                spark.x += spark.vx;
+                spark.y += spark.vy;
+                spark.life--;
+                if (spark.life <= 0) {
+                    sparks.splice(j, 1);
+                }
+            }
+            if (sparks.length === 0) {
+                this.fireworks.splice(i, 1);
+            }
+        }
+    }
+
+    draw() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.textAlign = 'center';
+        this.ctx.fillStyle = this.color;
+        this.ctx.font = this.fontStyle;
+        this.ctx.fillText(this.message, this.canvas.width / 2, this.canvas.height / 2);
+
+        for (const sparks of this.fireworks) {
+            for (const spark of sparks) {
+                this.ctx.fillStyle = spark.color;
+                this.ctx.beginPath();
+                this.ctx.arc(spark.x, spark.y, 3, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+        }
+    }
+
+    run() {
+        this.update();
+        this.draw();
+        if (this.fireworks.length > 0) {
+            requestAnimationFrame(() => this.run());
+        }
+    }
+
+    startFireworksDisplay() {
+        // Create fireworks at random positions
+        for (let i = 0; i < 5; i++) {
+            setTimeout(() => {
+                this.createFirework(Math.random() * this.canvas.width, Math.random() * this.canvas.height / 2);
+                this.run();
+            }, i * 1000); // Increase interval for smoother timing
+        }
+    }
+}
+
+export class ParticleExplosion {
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.particles = [];
+        this.particleCount = 300;
+        this.gravity = 0.05;
+    }
+
+    createExplosion(x, y) {
+        const colors = ['#FF6347', '#FF4500', '#FFD700', '#32CD32', '#1E90FF', '#8A2BE2'];
+        for (let i = 0; i < this.particleCount; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = Math.random() * 6 + 2;
+            this.particles.push({
+                x: x,
+                y: y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                life: 100 + Math.random() * 100,
+                radius: Math.random() * 3 + 1
+            });
+        }
+    }
+
+    update() {
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+            const particle = this.particles[i];
+            particle.vy += this.gravity;
+            particle.x += particle.vx;
+            particle.y += particle.vy;
+            particle.life--;
+            if (particle.life <= 0) {
+                this.particles.splice(i, 1);
+            }
+        }
+    }
+
+    draw() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        for (const particle of this.particles) {
+            this.ctx.fillStyle = particle.color;
+            this.ctx.beginPath();
+            this.ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+    }
+
+    run() {
+        this.update();
+        this.draw();
+        if (this.particles.length > 0) {
+            requestAnimationFrame(() => this.run());
+        }
+    }
+
+    startExplosionDisplay() {
+        // Create an explosion at the center of the canvas
+        this.createExplosion(this.canvas.width / 2, this.canvas.height / 2);
+        this.run();
+    }
+}
+
+
+
 
 export class GameView {
     constructor(canvasId) {
@@ -55,6 +208,11 @@ export class GameView {
 
         // add Colors module
         this.colors = new GameColors();
+
+        // add fireworks module
+        this.fireworks = new Fireworks(this.canvas, 'You Win!', 'white', '50px Arial');
+        
+        // this.particles = new ParticleExplosion(this.canvas);
     }
 
     resizeCanvas() {
@@ -78,7 +236,7 @@ export class GameView {
     }
 
     drawPlayer(player, color) {
-        this.ctx.fillStyle = color;
+        this.ctx.fillStyle = player.powerUps.includes('loveBoost') ? 'pink' : color;
         this.ctx.fillRect(player.x, player.y, player.size, player.size);
     }
 
@@ -185,20 +343,13 @@ export class GameView {
     }
 
     drawWinScreen() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        // Draw a cool pattern
-        for (let i = 0; i < 200; i++) {
-            this.ctx.beginPath();
-            this.ctx.arc(Math.random() * this.canvas.width, Math.random() * this.canvas.height, Math.random() * 50, 0, Math.PI * 2);
-            this.ctx.fillStyle = `hsl(${Math.random() * 360}, 100%, 50%)`;
-            this.ctx.fill();
-        }
+        // Display fireworks
+        this.fireworks.startFireworksDisplay();
 
         // Display the win message
-        this.ctx.fillStyle = 'white';
-        this.ctx.font = '50px Arial';
-        this.ctx.textAlign = 'center';
-        this.ctx.fillText('You Win!', this.canvas.width / 2, this.canvas.height / 2);
+        // this.ctx.fillStyle = 'white';
+        // this.ctx.font = '50px Arial';
+        // this.ctx.textAlign = 'center';
+        // this.ctx.fillText('You Win!', this.canvas.width / 2, this.canvas.height / 2);
     }
 }

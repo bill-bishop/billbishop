@@ -41,7 +41,7 @@ export class GameModel {
             new GameObject(509, 968, 9, 'Bio', 'dot', 0, new Interaction('navigate', { url: '/bio.html' })),
             new GameObject(791, 939, 9, 'Mystery', 'dot', 2, new Interaction('win', { message: 'You have won the game!' })),
             new GameObject(482, 791, 6, 'PowerUp', 'dot', 0, new Interaction('powerup', { type: 'speedBoost', duration: 5000, value: 4 }), true, true), // Power-up GameObject
-            new GameObject(979, 225, 30, 'Heart', 'heart', 0, new Interaction('navigate', { url: 'enhanced_ripple_message_with_assistant.html' })) // Heart GameObject
+            new GameObject(979, 225, 30, 'Heart', 'heart', 0, new Interaction('powerup', { type: 'loveBoost', duration: 10000, value: 42 }), true, true) // Heart GameObject
         ];
         this.colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
     }

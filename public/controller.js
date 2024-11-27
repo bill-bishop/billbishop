@@ -28,6 +28,7 @@ export class GameController {
         const colors = this.model.colors;
 
         if (this.model.state === 'PlayerWin') {
+
             this.view.drawWinScreen();
             return;
         }
@@ -96,6 +97,14 @@ export class GameController {
         this.update();
         this.draw();
         this.checkCollision();
-        requestAnimationFrame(() => this.gameLoop());
+
+        const gameOver = this.model.state === 'PlayerWin';
+
+        if (!gameOver) {
+            requestAnimationFrame(() => this.gameLoop());
+        }
+        else {
+            this.view.drawWinScreen();
+        }
     }
 }

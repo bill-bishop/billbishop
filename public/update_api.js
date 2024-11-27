@@ -29,7 +29,14 @@ export function updateMysteryObject(model) {
         const dx = player.x - mystery.x;
         const dy = player.y - mystery.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance < 200) { // Drift only if player is within a certain distance
+
+        const secretCombo = model.player.powerUps.includes('loveBoost') && model.player.powerUps.includes('speedBoost');
+
+        // if player has loveBoost and speedBoost, don't drift
+        if (secretCombo) {
+            // do nothing
+        }
+        else if (distance < 200) { // Drift only if player is within a certain distance
             mystery.x -= (dx / distance) * mystery.driftSpeed;
             mystery.y -= (dy / distance) * mystery.driftSpeed;
         }

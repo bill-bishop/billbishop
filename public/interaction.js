@@ -23,20 +23,32 @@ export class Interaction {
     }
 
     applyPowerUp(player) {
-        if (this.data.type === 'speedBoost') {
-            player.speed *= this.data.value;
-            player.powerUps.push('speedBoost');
+        player.powerUps.push(this.data.type);
 
-            // Reset speed after the duration ends
-            setTimeout(() => {
-                player.speed /= this.data.value;
-                const index = player.powerUps.indexOf('speedBoost');
-                if (index > -1) {
-                    player.powerUps.splice(index, 1);
-                }
-            }, this.data.duration);
-        } else {
-            console.warn('Unknown power-up type:', this.data.type);
+        const onPowerDown = [];
+
+        switch (this.data.type) {
+            case 'speedBoost':
+                player.speed *= this.data.value;
+
+                // Reset speed after the duration ends
+                onPowerDown.push(() => {
+                    player.speed /= this.data.value;
+                });
+                break;
+            case 'loveBoost':
+                console.log('<3 <3 <3');
+                break;
+            default:
+                console.warn('Unknown power-up type:', this.data.type);
         }
+
+        setTimeout(() => {
+            const index = player.powerUps.indexOf(this.data.type);
+            if (index > -1) {
+                player.powerUps.splice(index, 1);
+            }
+            onPowerDown.forEach(fn => fn());
+        }, this.data.duration);
     }
 }
