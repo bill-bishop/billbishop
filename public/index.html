@@ -15,10 +15,10 @@
         import { GameView } from './view.js';
         import { InputHandler } from './input_handler.js';
         import { gameLoop } from './controller.js';
-
-        const model = new GameModel();
+        
         const view = new GameView('gameCanvas');
         const inputHandler = new InputHandler(view.canvas);
+        const model = new GameModel(inputHandler);
 
         gameLoop(model, view, inputHandler);
     </script>
