@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -22,5 +22,28 @@
 
         gameLoop(model, view, inputHandler);
     </script>
+
+    <script type="text/javascript" src="./tmp.js" />
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECS Game Canvas</title>
+  <link rel="stylesheet" href=ecsStyles.css />
+</head>
+<body>
+  <h1>Entity-Component-System Game</h1>
+  <canvas id="gameCanvas" width="500" height="500"></canvas>
+  <canvas id="screen2" width="500" height="500"></canvas>
+  <script src="lib/bluebird.min.js"></script>
+  <script src="ecs_game_architecture.js"></script>
+  <script>
+    // canvasGameLoop();
+  </script>
 </body>
 </html>

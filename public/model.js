@@ -58,7 +58,7 @@ export const powerupInteraction = (model, data, collisionObject) => {
                 player.powerUps.splice(index, 1);
             }
         },
-        () => model.respawnPowerUp(collisionObject),
+        () => model.respawn(collisionObject),
     ];
 
     switch (data.type) {
@@ -96,7 +96,7 @@ export class GameModel {
         this.colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
     }
 
-    respawnPowerUp(obj) {
+    respawn(obj) {
         if (obj) {
             const newX = Math.random() * 800; // Assuming canvas width is 800
             const newY = Math.random() * 600; // Assuming canvas height is 600
