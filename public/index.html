@@ -38,8 +38,20 @@
 </head>
 <body>
   <h1>Entity-Component-System Game</h1>
-  <canvas id="gameCanvas" width="500" height="500"></canvas>
-  <canvas id="screen2" width="500" height="500"></canvas>
+  <div id="outer-container">
+      <span id="inner-container-left">
+        <canvas id="gameCanvas" width="700" height="700"></canvas>
+      </span>
+      <span id="inner-container-right">
+          <div>
+            <canvas id="screen2" width="600" height="300"></canvas>
+          </div>
+          <div>
+            <canvas id="screen3" width="600" height="300"></canvas>
+          </div>
+      </span>
+  </div>
+
   <script src="lib/bluebird.min.js"></script>
   <script src="ecs_game_architecture.js"></script>
   <script>

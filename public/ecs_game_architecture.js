@@ -1,5 +1,5 @@
 // Defining a simple Entity-Component-System (ECS) architecture for a video game
-const DEBUG = false;
+const DEBUG = true;
 
 // Entity: A unique identifier for game objects
 class Entity {
@@ -10,8 +10,8 @@ class Entity {
 
 // Component: Contains data and properties for entities (e.g., position, velocity, health)
 class Component {
-  constructor() {
-    this.type = null;
+  constructor(type) {
+    this.type = type;
   }
 }
 
@@ -51,6 +51,24 @@ class ResolutionComponent extends Component {
   }
 }
 
+class ViewModelComponent extends Component {
+  constructor(width, height) {
+    super();
+    this.type = 'viewModel';
+    this.width = width;
+    this.height = height;
+    this.entitiesInView = [];
+    this.entityPositionsInView = {};
+  }
+}
+
+class CanvasTarget extends Component {
+  constructor(elementId) {
+    super('canvasTarget');
+    this.elementId = elementId;
+  }
+}
+
 class CollisionComponent extends Component {
   constructor() {
     super();
@@ -73,14 +91,11 @@ class CollisionComponent extends Component {
 class System {
   constructor() {
     this.requiredComponents = [];
-
-    // Systems which should update() before this one:
-    this.dependencies = [];
   }
 
-  update(entities, entityComponents, dependencies) {
+  update(entities, entityComponents, globalEntities) {
     entities.forEach(entity => {
-        this.process(entity, entityComponents[entity.id], dependencies);
+        this.process(entity, entityComponents[entity.id], globalEntities, entityComponents);
     });
   }
 
@@ -89,7 +104,7 @@ class System {
     return this.requiredComponents.every(type => type in components);
   }
 
-  process(entity, components, dependencies) {
+  process(entity, components, globalEntities, globalEntityComponents) {
     // To be implemented in derived systems
   }
 }
@@ -168,54 +183,129 @@ class CollisionSystem extends System {
 class ViewSystem extends System {
   constructor() {
     super();
-    this.views = []; // List of views with Position + Resolution components
-    this.dependencies = [MovementSystem, CollisionSystem];
+    this.requiredComponents = ['viewModel'];
   }
 
   // todo: refactor to use super()
-  update(entities, entityComponents) {
-    this.views = []; // Clear previous views
-
-    entities.forEach(entity => {
-      const components = entityComponents[entity.id];
-      if ('position' in components && 'resolution' in components) {
-        const position = components['position'];
-        const resolution = components['resolution'];
-        const view = {
-          entityId: entity.id,
-          position,
-          resolution,
-          entitiesInView: []
-        };
-        this.views.push(view);
-      }
-    });
-
+  update(entities, entityComponents, globalEntities) {
     // Update entities in each view
-    this.views.forEach((view, viewIndex) => {
-      view.entitiesInView = []; // Clear previous entities in view
+    entities.forEach((camera, viewIndex) => {
+      const { viewModel, position: cameraPosition } = entityComponents[camera.id];
+      viewModel.entitiesInView = []; // Clear previous entities in view
+      viewModel.entityPositionsInView = {};
 
-      entities.forEach(entity => {
-        if (entity.id !== view.entityId) {
+      globalEntities.forEach(entity => {
+        if (entity.id !== camera.id) {
           const components = entityComponents[entity.id];
           if ('position' in components) {
             const position = components['position'];
             if (
-              position.x >= view.position.x &&
-              position.x <= view.position.x + view.resolution.width &&
-              position.y >= view.position.y &&
-              position.y <= view.position.y + view.resolution.height
+              position.x >= cameraPosition.x &&
+              position.x <= cameraPosition.x + viewModel.width &&
+              position.y >= cameraPosition.y &&
+              position.y <= cameraPosition.y + viewModel.height
             ) {
-              view.entitiesInView.push(entity.id);
+              // store the positions in view model relative to that view
+              viewModel.entitiesInView.push(entity.id);
+              viewModel.entityPositionsInView[entity.id] = {
+                x: position.x - cameraPosition.x,
+                y: position.y - cameraPosition.y,
+              };
             }
           }
         }
         else {
-          DEBUG && console.log('Entity not in view for Camera ' + viewIndex + ': ' + entity.id);
+          // is it possible to see myself?
+          // DEBUG && console.log('Entity not in view for Camera ' + camera.id + ': ' + entity.id);
         }
       });
 
-      DEBUG && console.log(`View for entity ${view.entityId} contains entities: ${view.entitiesInView.join(', ')}`);
+      DEBUG && console.log(`ViewModel for Camera ${camera.id} contains entities: ${viewModel.entitiesInView.join(', ')}`);
+    });
+  }
+}
+
+class CanvasRenderSystem extends System {
+  constructor() {
+    super();
+    this.requiredComponents = ['viewModel', 'canvasTarget'];
+  }
+
+  process(entity, components, globalEntities, globalEntityComponents) {
+    const {
+      position,
+      viewModel,
+      canvasTarget,
+    } = components;
+    const { width, height, entitiesInView, entityPositionsInView } = viewModel;
+    const cameraPosition = position;
+    const cameraResolution = { width, height };
+    const canvas = document.getElementById(canvasTarget.elementId);
+    const ctx = canvas.getContext('2d');
+
+    // clear before redraw
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw text "Player 1" on the screen
+    ctx.fillStyle = 'black';
+    ctx.font = '20px Arial';
+    ctx.fillText(`Camera${(entity.id)}, ${cameraResolution.width}x${cameraResolution.height}, Position(${parseInt(cameraPosition.x)},${parseInt(cameraPosition.y)})`, 10, 30);
+
+    // Draw tiny gray* grid markings at game model points (x, y) % 100 === 0,0
+    // todo: make this a visible background entity
+    ctx.fillStyle = 'rgba(0, 0, 0, 1)'; // Gray color with 50% transparency
+    const gridMarkingSize = 100;
+    for (let x = Math.floor(cameraPosition.x / gridMarkingSize) * gridMarkingSize; x < cameraPosition.x + cameraResolution.width; x += gridMarkingSize) {
+      for (let y = Math.floor(cameraPosition.y / gridMarkingSize) * gridMarkingSize; y < cameraPosition.y + cameraResolution.height; y += gridMarkingSize) {
+        const screenX = x - cameraPosition.x;
+        const screenY = y - cameraPosition.y;
+        ctx.fillRect(screenX, screenY, 2, 2); // Draw a small dot at each grid point
+      }
+    }
+
+    entitiesInView.forEach(entityId => {
+      const position = entityPositionsInView[entityId];
+
+      if (position) {
+        // draw cameras as transparent gray?
+        const isCamera = !!globalEntityComponents[entityId]['resolution'];
+
+        ctx.fillStyle = isCamera ? 'gray' : 'black';
+        ctx.fillRect(position.x, position.y, 10, 10); // Draw a simple square for each entity within the camera view
+
+        if (isCamera) {
+          ctx.font = '15px Arial';
+          ctx.fillText(`Camera${entityId}`, position.x, position.y);
+        }
+
+        DEBUG && console.log(`Rendering entity ${entityId} at canvas position (${position.x}, ${position.y})`);
+      }
+
+      // Draw the hitbox if it exists
+      const hitbox = globalEntityComponents[entityId]['hitbox'];
+      if (hitbox) {
+        const collision = globalEntityComponents[entityId]['collision'];
+
+        if (collision && collision.collidingWith.length > 0) {
+          // ctx.fillStyle = 'rgba(255, 0, 0, 0.5)'; // Semi-transparent red
+          const alpha = 0.5;
+          ctx.fillStyle = `rgba(${(entityId * 50) % 255}, ${(entityId * 80) % 255}, ${(entityId * 120) % 255}, ${alpha})`; // Semi-transparent color based on entity ID
+          ctx.fillRect(
+            position.x,
+            position.y,
+            hitbox.width,
+            hitbox.height
+          );
+        }
+
+        ctx.strokeStyle = 'cyan';
+        ctx.strokeRect(
+          position.x,
+          position.y,
+          hitbox.width,
+          hitbox.height
+        ); // Draw the hitbox for each entity in cyan
+      }
     });
   }
 }
@@ -245,7 +335,6 @@ class World {
   }
 
   getEntitiesWithComponents(components) {
-    //     return this.requiredComponents.every(type => type in components);
     return this.entities.filter(entity => {
       const result = components.every(type => type in this.entityComponents[entity.id]);
       return result;
@@ -255,7 +344,7 @@ class World {
   update() {
     this.systems.forEach(system => {
       const entities = this.getEntitiesWithComponents(system.requiredComponents);
-      system.update(entities, this.entityComponents);
+      system.update(entities, this.entityComponents, this.entities);
     });
   }
 }
@@ -266,32 +355,46 @@ class SampleGame extends World {
 
 
     // Create entities and add components
-    const player = this.createEntity();
 
-    this.addComponent(player, new PositionComponent(50, 150));
-    this.addComponent(player, new HitboxComponent(50, 50, 0, 0));
+    // player
+    const player = this.createEntity();
+    this.addComponent(player, new PositionComponent(150, 330));
+    this.addComponent(player, new HitboxComponent(55, 55, 0, 0));
     this.addComponent(player, new CollisionComponent());
+    this.addComponent(player, new VelocityComponent(.1, .1));
 
     // player camera
     const playerCamera = this.createEntity();
-    this.addComponent(playerCamera, new PositionComponent(50-250, 150-250));
-    this.addComponent(playerCamera, new ResolutionComponent(500, 500));
+    this.addComponent(playerCamera, new PositionComponent(150-350, 330-350));
+    this.addComponent(playerCamera, new ResolutionComponent(700, 700));
+    this.addComponent(playerCamera, new ViewModelComponent(700, 700));
+    this.addComponent(playerCamera, new VelocityComponent(.1, .1));
+    this.addComponent(playerCamera, new CanvasTarget('gameCanvas'));
 
     const enemy = this.createEntity();
-    this.addComponent(enemy, new PositionComponent(200, 200));
-    this.addComponent(enemy, new HitboxComponent(50, 50, 0, 0));
+    this.addComponent(enemy, new PositionComponent(400, 200));
+    this.addComponent(enemy, new HitboxComponent(55, 55, 0, 0));
     this.addComponent(enemy, new CollisionComponent());
+    this.addComponent(enemy, new VelocityComponent(-.35, 0.5));
 
     // enemy camera
     const enemyCamera = this.createEntity();
-    this.addComponent(enemyCamera, new PositionComponent(200-250, 200-250));
-    this.addComponent(enemyCamera, new ResolutionComponent(500, 500));
+    this.addComponent(enemyCamera, new PositionComponent(400-300, 200-150));
+    this.addComponent(enemyCamera, new ResolutionComponent(600, 300));
+    this.addComponent(enemyCamera, new ViewModelComponent(600, 300));
+    this.addComponent(enemyCamera, new VelocityComponent(-.35, 0.5));
+    this.addComponent(enemyCamera, new CanvasTarget('screen2'));
 
-    // starting speeds
-    this.addComponent(player, new VelocityComponent(1, 1));
-    this.addComponent(playerCamera, new VelocityComponent(1, 1));
-    this.addComponent(enemy, new VelocityComponent(-1, 0.5));
-    this.addComponent(enemyCamera, new VelocityComponent(-1, 0.5));
+    const stationaryEntity1 = this.createEntity();
+    this.addComponent(stationaryEntity1, new PositionComponent(250, 450));
+    this.addComponent(stationaryEntity1, new HitboxComponent(25, 25, 0, 0));
+    this.addComponent(stationaryEntity1, new CollisionComponent());
+
+    const stationaryCamera = this.createEntity();
+    this.addComponent(stationaryCamera, new PositionComponent(250-300, 450-150));
+    this.addComponent(stationaryCamera, new ResolutionComponent(600, 300));
+    this.addComponent(stationaryCamera, new ViewModelComponent(600, 300));
+    this.addComponent(stationaryCamera, new CanvasTarget('screen3'));
 
     // Add systems
     const movementSystem = new MovementSystem();
@@ -302,6 +405,9 @@ class SampleGame extends World {
 
     const viewSystem = new ViewSystem();
     this.addSystem(viewSystem);
+
+    const canvasRenderSystem = new CanvasRenderSystem();
+    this.addSystem(canvasRenderSystem);
   }
 }
 
@@ -316,64 +422,9 @@ function canvasGameLoop() {
   ticks = (ticks + 1) % tickSpeed;
   if (ticks === 0) {
       world.update();
-      renderCanvas();
+      // renderCanvas();
   }
   requestAnimationFrame(canvasGameLoop);
-}
-
-// Rendering function using HTML Canvas
-function renderCanvas() {
-  const screen1 = document.getElementById('gameCanvas');
-  const ctx1 = screen1.getContext('2d');
-  ctx1.clearRect(0, 0, screen1.width, screen1.height);
-
-
-  const screen2 = document.getElementById('screen2');
-  const ctx2 = screen2.getContext('2d');
-  ctx2.clearRect(0, 0, screen2.width, screen2.height);
-
-  const screens = [
-    { canvas: screen1, ctx: ctx1 },
-    { canvas: screen2, ctx: ctx2 },
-  ];
-
-  if (world.systems.find(system => system instanceof ViewSystem).views.length > 0) {
-    const { views } = world.systems.find(system => system instanceof ViewSystem);
-    // const view = world.systems.find(system => system instanceof ViewSystem).views[0];
-
-    views.forEach((view, viewIndex) => {
-      const cameraPosition = view.position;
-      const cameraResolution = view.resolution;
-      const { canvas, ctx } = screens[viewIndex];
-
-      view.entitiesInView.forEach(entityId => {
-        const position = world.entityComponents[entityId]['position'];
-        const { collidingWith } = world.entityComponents[entityId]['collision'];
-
-        if (position) {
-          ctx.fillRect(position.x - cameraPosition.x, position.y - cameraPosition.y, 10, 10); // Draw a simple square for each entity within the camera view
-          DEBUG && console.log(`Rendering entity ${entityId} at canvas position (${position.x - cameraPosition.x}, ${position.y - cameraPosition.y})`);
-        }
-
-          // Draw the hitbox if it exists
-          const hitbox = world.entityComponents[entityId]['hitbox'];
-          if (hitbox) {
-            // center hitbox on point in view
-            const offsetX = 0; // parseInt(hitbox.width / 2);
-            const offsetY = 0; // parseInt(hitbox.height / 2);
-
-
-            ctx.strokeStyle = 'cyan';
-            ctx.strokeRect(
-              position.x + offsetX - cameraPosition.x,
-              position.y + offsetY - cameraPosition.y,
-              hitbox.width,
-              hitbox.height
-            ); // Draw the hitbox for each entity in cyan
-          }
-      });
-    });
-  }
 }
 
 // Start the canvas game loop

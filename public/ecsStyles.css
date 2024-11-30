@@ -1,3 +1,14 @@
-#gameCanvas, #screen2 {
+#gameCanvas, #screen2, #screen3 {
   border: 1px solid black;
+}
+
+#outer-container {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+span#inner-container-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
 }
